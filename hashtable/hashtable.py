@@ -7,6 +7,59 @@ class HashTableEntry:
         self.key = key
         self.value = value
         self.next = None
+        self.tail = None
+
+    def push(self, key, value):
+        if self.key == key:
+            self.value = value
+            return
+        
+        while self.next:
+            if self.next.key == key:
+                self.next.value = value
+                return
+            self.next = self.next.next
+
+        if not self.next:
+            self.next = HashTableEntry(key, value)
+            self.tail = self.next
+        else:
+            self.tail.next = HashTableEntry(key, value)
+            self.tail = self.tail.next
+    
+    def search(self, key):
+        if self.key == key:
+            return self.value
+        else:
+            while self.next:
+                if self.next.key == key:
+                    return self.next.value
+                self.next = self.next.next
+        return None
+
+    def remove(self, key):
+        if self.key == key:
+            if self.next:
+                 self.key = self.next.key
+                 self.value = self.next.value
+                 self.next= self.next.next
+            else:
+                self.key = None
+                self.value = None
+            return
+        else:
+            while self.next:
+                if self.next.key == key:
+                    if self.next.next:
+                        self.next.key = self.next.next.key
+                        self.next.value = self.next.next.value
+                        self.next = self.next.next
+                    else:
+                        self.next = None
+                    return 
+                self.next = self.next.next
+        print(f"warning: {key} not found")
+   
 
 
 class HashTable:
@@ -16,6 +69,10 @@ class HashTable:
 
     Implement this.
     """
+    def __init__(self, capacity):
+        self.capacity= capacity
+        self.storage = [None] * capacity
+    
 
     def fnv1(self, key):
         """
@@ -23,6 +80,17 @@ class HashTable:
 
         Implement this, and/or DJB2.
         """
+        FNV_offset_basis = 14695981039346656037
+        FNV_prime = 1099511628211
+        hash = FNV_offset_basis
+
+        encodedKey = key.encode()
+        for c in encodedKey:
+            hash *= FNV_prime
+            hash ^= c
+
+        return hash
+
 
     def djb2(self, key):
         """
@@ -30,7 +98,14 @@ class HashTable:
 
         Implement this, and/or FNV-1.
         """
+        hash = 5381
 
+        encodedKey = key.encode()
+        for c in encodedKey:
+            hash = ((hash << 5) + hash) + c
+
+        return hash
+ 
     def hash_index(self, key):
         """
         Take an arbitrary key and return a valid integer index
@@ -47,6 +122,11 @@ class HashTable:
 
         Implement this.
         """
+        index = self.hash_index(key)
+        if not self.storage[index]:
+            self.storage[index] = HashTableEntry(key, value)
+        else:
+            self.storage[index].push(key, value)
 
     def delete(self, key):
         """
@@ -56,6 +136,11 @@ class HashTable:
 
         Implement this.
         """
+        index = self.hash_index(key)
+        if not self.storage[index]:
+                print(f"{key} not found")
+        else:
+                self.storage[index].remove(key)
 
     def get(self, key):
         """
@@ -65,6 +150,11 @@ class HashTable:
 
         Implement this.
         """
+        index = self.hash_index(key)
+        if not self.storage[index]:
+            return None
+        else:
+            return self.storage[index].search(key)   
 
     def resize(self):
         """
@@ -73,6 +163,17 @@ class HashTable:
 
         Implement this.
         """
+        self.capacity *= 2
+        ht = HashTable(self.capacity)
+        for i in self.storage:
+          if i:  
+            ht.put(i.key, i.value)
+            while i.next:
+                ht.put(i.next.key, i.next.value)
+                i.next = i.next.next
+        self.storage = ht.storage
+
+
 
 if __name__ == "__main__":
     ht = HashTable(2)
