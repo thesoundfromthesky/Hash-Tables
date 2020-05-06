@@ -71,8 +71,7 @@ class HashTable:
     """
     def __init__(self, capacity):
         self.capacity= capacity
-        self.storage = [None] * capacity
-    
+        self.storage = [None] * capacity    
 
     def fnv1(self, key):
         """
@@ -122,6 +121,7 @@ class HashTable:
 
         Implement this.
         """
+        self.auto_resize()
         index = self.hash_index(key)
         if not self.storage[index]:
             self.storage[index] = HashTableEntry(key, value)
@@ -141,6 +141,7 @@ class HashTable:
                 print(f"{key} not found")
         else:
                 self.storage[index].remove(key)
+        self.auto_resize()
 
     def get(self, key):
         """
@@ -172,6 +173,37 @@ class HashTable:
                 ht.put(i.next.key, i.next.value)
                 i.next = i.next.next
         self.storage = ht.storage
+    
+    def down_size(self):
+         """
+         Doubles the capacity of the hash table and
+         rehash all key/value pairs.
+         Implement this.
+         """
+         self.capacity *= .5
+         ht = HashTable(self.capacity)
+         for i in self.storage:
+           if i:  
+             ht.put(i.key, i.value)
+             while i.next:
+                 ht.put(i.next.key, i.next.value)
+                 i.next = i.next.next
+         self.storage = ht.storage
+    
+    def auto_resize(self):
+        load_factor_up=0.7
+        load_factor_down=0.2
+        minimum_slot = 128
+    
+        count=0
+        factor = count / self.capacity
+        for i in self.storage:
+            if i:
+                count += 1
+        if factor > load_factor_up:
+            self.resize()
+        elif factor < load_factor_down and count > minimum_slot:
+            self.down_size()
 
 
 
