@@ -1,5 +1,19 @@
+cache = {}
+
 def expensive_seq(x, y, z):
+    
     # Implement me
+    
+    cur=f"{x},{y},{z}"
+    if x <= 0: 
+        if cur not in cache:            
+            cache[cur] = y + z
+        return cache[cur]
+    if x >  0: 
+        if cur not in cache:
+            cache[cur] = expensive_seq(x-1,y+1,z) + expensive_seq(x-2,y+2,z*2) + expensive_seq(x-3,y+3,z*3)  
+        return cache[cur]
+   
 
 if __name__ == "__main__":
     for i in range(10):

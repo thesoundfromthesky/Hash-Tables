@@ -5,8 +5,8 @@ cache={}
 
 def slowfun(x, y):
     # TODO: Modify to produce the same results, but much faster
-    cur=f"xy"
-    if cache.get(cur):
+    cur=f"{x},{y}"
+    if cur in cache:
         return cache[cur]
 
     v = math.pow(x, y)
