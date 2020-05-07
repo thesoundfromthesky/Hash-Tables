@@ -1,6 +1,15 @@
 def no_dups(s):
     # Implement me.
 
+    no_dups=[]
+    for w in s.split():
+        if w not in no_dups:
+            no_dups.append(w)
+
+    return " ".join(no_dups)
+
+
+
 
 if __name__ == "__main__":
     print(no_dups(""))
